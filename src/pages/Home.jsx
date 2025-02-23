@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeModal, openModal } from "../redux/modalSlice";
 import image from "../assets/img.jpg"; 
@@ -28,41 +28,16 @@ const Home = () => {
     };
 
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [touchStart, setTouchStart] = useState(0);
-    const [touchEnd, setTouchEnd] = useState(0);
 
-    const handleNext = () => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
-    };
+    // Handle Image change automatically every 3 seconds (3000ms)
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
+        }, 3000); // Change every 3 seconds
 
-    const handlePrev = () => {
-        setCurrentIndex(
-            (prevIndex) => (prevIndex - 1 + carouselImages.length) % carouselImages.length
-        );
-    };
-
-    // Handle Swipe Start
-    const handleTouchStart = (e) => {
-        setTouchStart(e.targetTouches[0].clientX); // Get touch start position
-    };
-
-    // Handle Swipe Move (optional, but can be used to visualize the movement)
-    const handleTouchMove = (e) => {
-        setTouchEnd(e.targetTouches[0].clientX); // Get touch end position
-    };
-
-    // Handle Swipe End and detect direction
-    const handleTouchEnd = () => {
-        if (touchStart - touchEnd > 150) {
-            // Swipe left (next image)
-            handleNext();
-        }
-
-        if (touchStart - touchEnd < -150) {
-            // Swipe right (previous image)
-            handlePrev();
-        }
-    };
+        // Clean up the interval when the component is unmounted
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
         <div
@@ -90,12 +65,7 @@ const Home = () => {
             </div>
 
             {/* Carousel */}
-            <div
-                className="relative mb-8 w-full max-w-3xl mx-auto"
-                onTouchStart={handleTouchStart} // Detect touch start
-                onTouchMove={handleTouchMove} // Detect touch move
-                onTouchEnd={handleTouchEnd} // Detect touch end
-            >
+            <div className="relative mb-8 w-full max-w-3xl mx-auto">
                 {/* Carousel Image with fade-in animation */}
                 <div className="w-full h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg shadow-lg">
                     <img
@@ -103,22 +73,6 @@ const Home = () => {
                         alt={`carousel image ${currentIndex + 1}`}
                         className="w-full h-full object-cover transition-transform transform hover:scale-110 ease-in-out duration-700"
                     />
-                </div>
-
-                {/* Carousel Buttons (For Desktop Only) */}
-                <div className="hidden sm:block">
-                    <button
-                        onClick={handlePrev}
-                        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white text-gray-800 rounded-full p-3 shadow-xl hover:bg-gray-200 transition transform hover:scale-110 duration-300"
-                    >
-                        &#8592;
-                    </button>
-                    <button
-                        onClick={handleNext}
-                        className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white text-gray-800 rounded-full p-3 shadow-xl hover:bg-gray-200 transition transform hover:scale-110 duration-300"
-                    >
-                        &#8594;
-                    </button>
                 </div>
             </div>
 
